@@ -2,10 +2,8 @@ package upstash
 
 import (
 	"context"
-	"github.com/hashicorp/terraform-plugin-sdk/diag"
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
-	"github.com/hashicorp/terraform-plugin-sdk/terraform"
-	"terraform-provider-upstash/upstash"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
 // Environment Variables
@@ -20,7 +18,7 @@ const (
 	api_key = "api_key"
 )
 
-func Provider() terraform.ResourceProvider {
+func Provider() *schema.Provider {
 	return &schema.Provider{
 		Schema: map[string]*schema.Schema{
 			email: {
@@ -36,11 +34,8 @@ func Provider() terraform.ResourceProvider {
 				Description: "Your Upstash API_KEY associated with your defined email address",
 			},
 		},
-		ResourcesMap: map[string]*schema.Resource{
-			"example_item": resourceItem(),
-		},
+		ResourcesMap:         map[string]*schema.Resource{},
 		ConfigureContextFunc: providerConfigure,
-
 	}
 }
 
@@ -52,14 +47,14 @@ func providerConfigure(ctx context.Context, d *schema.ResourceData) (interface{}
 	var diags diag.Diagnostics
 
 	if (email != "") && (apiKey != "") {
-		c, err := upstash.NewClient(nil, &email, &apiKey)
+		c, err := NewClient(nil, &email, &apiKey)
 		if err != nil {
 			return nil, diag.FromErr(err)
 		}
 		return c, diags
 	}
 
-	c, err := upstash.NewClient(nil, nil, nil)
+	c, err := NewClient(nil, nil, nil)
 	if err != nil {
 		return nil, diag.FromErr(err)
 	}

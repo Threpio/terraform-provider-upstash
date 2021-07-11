@@ -4,11 +4,11 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"net/http"
 	"strconv"
 	"time"
-
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
 func dataSourceDatabases() *schema.Resource {
@@ -25,11 +25,11 @@ func dataSourceDatabases() *schema.Resource {
 							Computed: true,
 						},
 						"database_name": &schema.Schema{
-							Type: schema.TypeString,
+							Type:     schema.TypeString,
 							Computed: true,
 						},
 						"region": &schema.Schema{
-							Type: schema.TypeString,
+							Type:     schema.TypeString,
 							Computed: true,
 						},
 					},
@@ -62,7 +62,7 @@ func dataSourceDatabasesRead(ctx context.Context, d *schema.ResourceData, m inte
 		return diag.FromErr(err)
 	}
 
-	if err := d.Set("databases", database); err != nil {
+	if err := d.Set("databases", databases); err != nil {
 		return diag.FromErr(err)
 	}
 
