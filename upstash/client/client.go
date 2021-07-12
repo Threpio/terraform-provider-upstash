@@ -1,4 +1,4 @@
-package upstash
+package client
 
 import (
 	"errors"

@@ -4,6 +4,7 @@ import (
 	"context"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"terraform-provider-upstash/upstash/client"
 )
 
 // Environment Variables
@@ -35,6 +36,9 @@ func Provider() *schema.Provider {
 			},
 		},
 		ResourcesMap:         map[string]*schema.Resource{},
+		DataSourcesMap: map[string]*schema.Resource{
+			"upstash_databases": dataSourceDatabases(),
+		},
 		ConfigureContextFunc: providerConfigure,
 	}
 }
@@ -47,17 +51,18 @@ func providerConfigure(ctx context.Context, d *schema.ResourceData) (interface{}
 	var diags diag.Diagnostics
 
 	if (email != "") && (apiKey != "") {
-		c, err := NewClient(nil, &email, &apiKey)
+		c, err := client.NewClient(nil, &email, &apiKey)
 		if err != nil {
 			return nil, diag.FromErr(err)
 		}
 		return c, diags
 	}
 
-	c, err := NewClient(nil, nil, nil)
+	c, err := client.NewClient(nil, nil, nil)
 	if err != nil {
 		return nil, diag.FromErr(err)
 	}
 
 	return c, diags
 }
+

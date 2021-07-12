@@ -2,10 +2,11 @@ terraform {
   required_providers {
     upstash = {
       version = "0.1"
-      source  = "threpio/upstash"
+      source  = "hashicorp.com/edu/upstash"
     }
   }
 }
+
 
 variable "database_name" {
   type    = string
@@ -19,11 +20,11 @@ output "all_databases" {
   value = data.upstash_databases.all.databases
 }
 
-# Only returns one
-//output "database" {
-//  value = {
-//    for database in data.upstash_databases.all.databases :
-//    database.database_id => database
-//    if database.database_name == var.database_name
-//  }
-//}
+# Only returns database
+output "database" {
+  value = {
+  for database in data.upstash_databases.all.databases :
+  database.id => database
+  if database.database_name == var.database_name
+  }
+}

@@ -2,19 +2,22 @@ terraform {
   required_providers {
     upstash = {
       version = "0.1"
-      source  = "threpio/upstash"
+      source  = "hashicorp.com/edu/upstash"
     }
   }
 }
 
-provider "upstash" {}
+provider "upstash" {
+  email = "theoandresier@gmail.com"
+  api_key = "e16b3125-167d-4e28-b8d9-b128f22a0b41"
+}
 
-module "psl" {
+module "upstash_databases" {
   source = "./database"
-
-  coffee_name = "Packer Spiced Latte"
+  database_name = "test-tha2"
 }
 
-output "psl" {
-  value = module.psl.coffee
+output "database" {
+  value = module.upstash_databases.all_databases
 }
+

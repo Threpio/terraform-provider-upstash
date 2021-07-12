@@ -2,15 +2,13 @@ package upstash
 
 import (
 	"context"
-	"encoding/json"
-	"fmt"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"net/http"
 	"strconv"
-	"time"
+	"terraform-provider-upstash/upstash/client"
 )
 
+//{"database_id":"92fb6455-692b-4b8f-b588-a2e85588079a","database_name":"test-tha2","region":"eu-west-1","tls":false,"api_enabled":true}]
 func dataSourceDatabases() *schema.Resource {
 	return &schema.Resource{
 		ReadContext: dataSourceDatabasesRead,
@@ -32,6 +30,14 @@ func dataSourceDatabases() *schema.Resource {
 							Type:     schema.TypeString,
 							Computed: true,
 						},
+						"tls": &schema.Schema{
+							Type:     schema.TypeBool,
+							Computed: true,
+						},
+						"api_enabled": &schema.Schema{
+						Type:     schema.TypeBool,
+						Computed: true,
+						},
 					},
 				},
 			},
@@ -39,25 +45,18 @@ func dataSourceDatabases() *schema.Resource {
 	}
 }
 
+
 func dataSourceDatabasesRead(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
-	client := &http.Client{Timeout: 10 * time.Second}
+
+	// I actually don't know what this line does properly
+	c := m.(*client.Client)
 
 	// Warning or errors can be collected in a slice type
 	var diags diag.Diagnostics
 
-	req, err := http.NewRequest("GET", fmt.Sprintf("%s/databases", "https://api.upstash.com/v1"), nil)
-	if err != nil {
-		return diag.FromErr(err)
-	}
+	databaseId := strconv.Itoa(d.Get("database_id").(int))
 
-	r, err := client.Do(req)
-	if err != nil {
-		return diag.FromErr(err)
-	}
-	defer r.Body.Close()
-
-	databases := make([]map[string]interface{}, 0)
-	err = json.NewDecoder(r.Body).Decode(&databases)
+	databases, err := c.GetDatabases()
 	if err != nil {
 		return diag.FromErr(err)
 	}
@@ -66,8 +65,7 @@ func dataSourceDatabasesRead(ctx context.Context, d *schema.ResourceData, m inte
 		return diag.FromErr(err)
 	}
 
-	// always run
-	d.SetId(strconv.FormatInt(time.Now().Unix(), 10))
+	d.SetId(databaseId)
 
 	// TODO: Handle when no resources are returned (AKA resources manually deleted)
 
